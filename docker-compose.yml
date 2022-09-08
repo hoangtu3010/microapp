@@ -4,7 +4,7 @@ services:
     image: postgres
     environment:
       POSTGRES_USER: piai
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: admin
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
