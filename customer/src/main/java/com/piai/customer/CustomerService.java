@@ -1,30 +1,50 @@
 package com.piai.customer;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
+@Slf4j
+@AllArgsConstructor
 public class CustomerService {
     private final CustomerRepository repository;
+    private final RestTemplate restTemplate;
 
-    public CustomerService(CustomerRepository repository) {
-        this.repository = repository;
-    }
+    public Customer registerCustomer(CustomerRequest request) {
+        try {
+            Customer customer = Customer.builder()
+                    .firstName(request.firstName)
+                    .lastName(request.lastName)
+                    .email(request.email)
+                    .build();
 
-    public void registerCustomer(CustomerRequest request) {
-        Customer customer = Customer.builder()
-                .firstName(request.firstName)
-                .lastName(request.lastName)
-                .email(request.email)
-                .build();
+            // todo: check if email valid
+            if (repository.existsByEmail(customer.getEmail())) {
+                log.error("Email is already exists!");
+                return null;
+            }
 
-        // todo: check if email valid
-//        if (repository.existsByEmail(customer.getEmail())){
-//
-//        }
+            // todo: store customer in db
+            repository.saveAndFlush(customer);
 
-        // todo: check if email not taken
+            // todo: check if fraudster
+            FraudCheckResponse response = restTemplate.getForObject(
+                    "http://FRAUD/api/v1/fraud-check/{customerId}",
+                    FraudCheckResponse.class,
+                    customer.getId()
+            );
 
-        // todo: store customer in db
-        repository.save(customer);
+            if (response.isFraudster) {
+                throw new IllegalStateException("fraudster");
+            }
+
+            return customer;
+        } catch (Exception e) {
+            log.error(e.getLocalizedMessage(), e);
+        }
+
+        return null;
     }
 }
