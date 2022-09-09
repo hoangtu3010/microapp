@@ -6,13 +6,13 @@ spring:
     name: customer
   datasource:
     url: jdbc:postgresql://localhost:5432/customer
-    username: piai
+    username: postgres
     password: admin
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQL82Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
