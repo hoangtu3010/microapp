@@ -13,6 +13,10 @@
         <module>customer</module>
         <module>fraud</module>
         <module>eureka-server</module>
+        <module>notification</module>
+        <module>clients</module>
+        <module>amqp</module>
+        <module>apigw</module>
     </modules>
 
     <name>microapp</name>
