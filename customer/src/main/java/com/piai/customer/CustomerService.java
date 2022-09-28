@@ -1,5 +1,8 @@
 package com.piai.customer;
 
+import com.piai.amqp.RabbitMQMessageProducer;
+import com.piai.clients.notification.NotificationRequest;
+import com.piai.fraud.FraudCheckResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 public class CustomerService {
     private final CustomerRepository repository;
     private final RestTemplate restTemplate;
+    private final RabbitMQMessageProducer rabbitMQMessageProducer;
 
     public Customer registerCustomer(CustomerRequest request) {
         try {
@@ -39,6 +43,18 @@ public class CustomerService {
             if (response.isFraudster) {
                 throw new IllegalStateException("fraudster");
             }
+
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                    .toCustomerId(customer.getId())
+                    .toCustomerName(customer.getEmail())
+                    .message(String.format("Hi %s, welcome to Piai...", customer.getFirstName()))
+                    .build();
+
+            rabbitMQMessageProducer.publish(
+                    notificationRequest,
+                    "internal.exchange",
+                    "internal.notification.routing-key"
+            );
 
             return customer;
         } catch (Exception e) {

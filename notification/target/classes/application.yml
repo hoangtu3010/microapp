@@ -13,15 +13,13 @@ spring:
       ddl-auto: create-drop
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.PostgreSQL81Dialect
         format_sql: true
       show-sql: true
   zipkin:
     base-url: http://localhost:9411
-    rabbitmq:
-      addresses: localhost:5672
-  profiles:
-    active: default
+  rabbitmq:
+    addresses: localhost:5672
 
 eureka:
   client:
